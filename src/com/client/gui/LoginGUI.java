@@ -1,27 +1,84 @@
 package com.client.gui;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.EventQueue;
 
-public class LoginGUI extends JFrame{
-	
-	public LoginGUI(){
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		//绘制图形界面
-		this.setTitle("IM Demo");
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.setSize(350,240);
-		int x = (dim.width-350)/2;
-		int y = (dim.height-240)/2;
-		this.setLocation(x,y);
-		this.setVisible(true);
-		
-		Container jFrame_content = this.getContentPane();
-		jFrame_content.setLayout(new java.awt.FlowLayout());
-	}
-	
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import java.awt.Color;
+import javax.swing.JPasswordField;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class LoginGUI {
+
+	private JFrame frame;
+	private JPasswordField txtPassword;
+	private JTextField txtAccount;
+
+	/**
+	 * Launch the application.
+	 */
 	public static void main(String[] args) {
-		LoginGUI lGUI = new LoginGUI();
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					LoginGUI window = new LoginGUI();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
+	/**
+	 * Create the application.
+	 */
+	public LoginGUI() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		txtPassword = new JPasswordField();
+		txtPassword.setBounds(184, 110, 136, 21);
+		frame.getContentPane().add(txtPassword);
+		
+		JLabel lblAccount = new JLabel("Account:");
+		lblAccount.setBounds(106, 67, 68, 15);
+		frame.getContentPane().add(lblAccount);
+		
+		JLabel lblPassword = new JLabel("Password:");
+		lblPassword.setBounds(106, 113, 68, 15);
+		frame.getContentPane().add(lblPassword);
+		
+		JLabel lblMessage = new JLabel("");
+		lblMessage.setBounds(106, 155, 214, 15);
+		frame.getContentPane().add(lblMessage);
+		
+		txtAccount = new JTextField();
+		txtAccount.setBounds(184, 64, 136, 21);
+		frame.getContentPane().add(txtAccount);
+		txtAccount.setColumns(10);
+		
+		JButton btnLogin = new JButton("Login");
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnLogin.setBounds(106, 180, 214, 23);
+		frame.getContentPane().add(btnLogin);
+		
+		
+		
+	}
 }
