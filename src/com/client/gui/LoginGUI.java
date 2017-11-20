@@ -1,7 +1,6 @@
 package com.client.gui;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import java.awt.Color;
@@ -10,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import com.server.DataProcessing;
 
 public class LoginGUI {
 
@@ -17,9 +17,6 @@ public class LoginGUI {
 	private JPasswordField txtPassword;
 	private JTextField txtAccount;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -33,16 +30,10 @@ public class LoginGUI {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public LoginGUI() {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
@@ -73,12 +64,12 @@ public class LoginGUI {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String enterUsername = txtAccount.getText();
+				String enterPassword = txtPassword.getText();
 			}
 		});
 		btnLogin.setBounds(106, 180, 214, 23);
 		frame.getContentPane().add(btnLogin);
-		
-		
 		
 	}
 }

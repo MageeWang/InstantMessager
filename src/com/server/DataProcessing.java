@@ -3,23 +3,19 @@ import java.sql.*;
 
 public class DataProcessing {
 
-	public void ConnectAccessFile() throws Exception{
-		Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
-		String dbur1 = "jdbc:odbc:driver={Microsoft Access Driver (*.accdb)};DBQ=C://Workspace//InstantMessager//ClientInformation.accdb";
-		Connection con = DriverManager.getConnection(dbur1,"Username","Password");
+	public static void main(String[] args) throws Exception{
+		Class.forName("com.hxtt.sql.access.AccessDriver");
+		Connection con = DriverManager.getConnection("jdbc:Access:///C:\\Workspace\\InstantMessager\\ClientInformatica.accdb");
 		Statement stmt = con.createStatement();
-	    ResultSet rs = stmt.executeQuery("select * from ClientInformation");
+		String sql = "select * from ClientInformatica";
+		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			System.out.println(rs.getString("Username"));
-			System.out.println(rs.getString("Password"));
-			rs.close();
-			stmt.close();
-			con.close();
+			String Username = rs.getString(2);
+			String Password = rs.getString(3);
 		}
+		con.close();
+		stmt.close();
+		rs.close();
 	}
 	
-	public static void main(String[] args) throws Exception{
-		DataProcessing ca = new DataProcessing();
-		ca.ConnectAccessFile();
-	}
 }
