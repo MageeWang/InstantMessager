@@ -66,6 +66,17 @@ public class LoginGUI {
 			public void actionPerformed(ActionEvent e) {
 				String enterUsername = txtAccount.getText();
 				String enterPassword = txtPassword.getText();
+				DataProcessing dp = new DataProcessing(enterUsername,enterPassword);
+				try {
+					if(dp.Compare()) {
+						System.out.println("Success!");
+					}
+					else
+						System.out.println("Fail");
+				}catch(Exception e1) {
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 		btnLogin.setBounds(106, 180, 214, 23);
