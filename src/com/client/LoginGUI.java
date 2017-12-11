@@ -1,31 +1,35 @@
 package com.client;
 
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-import java.awt.Color;
-import javax.swing.JPasswordField;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.net.*;
+import java.io.*;
+
+import com.common.*;
+
 import com.server.DataProcessing;
 
-public class GUI {
+public class LoginGUI implements Serializable{
 
 	private JFrame frame;
 	private JPasswordField txtPassword;
 	private JTextField txtAccount;
-	String enterUsername;
-	String enterPassword;
-	DataProcessing dp;
+	private static LoginGUI login;
+	private String enterUsername;
+	private String enterPassword;
+	private DataProcessing dp;
+	private UserInfo ui;
+	private Socket socket;
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUI window = new GUI();
-					window.frame.setVisible(true);
+					login = new LoginGUI();
+					login.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -33,11 +37,15 @@ public class GUI {
 		});
 	}
 
-	public GUI() {
+	public LoginGUI() throws Exception {
 		initialize();
 	}
 
-	private void initialize() {
+	private void initialize() throws Exception {
+
+		ui = new UserInfo();
+		socket = new Socket("localhost",3223);
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -67,31 +75,26 @@ public class GUI {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enterUsername = txtAccount.getText();
-				enterPassword = txtPassword.getText();
 				try {
-					dp = new DataProcessing(enterUsername,enterPassword);
-					switch(dp.Compare()) {
-						case 0:System.out.println("Success");break;
-						case 1:System.out.println("Wrong password");break;
-						case 2:System.out.println("Not exist");break;
-						case 3:System.out.println("Null");break;
-					}
-				}catch(Exception e1) {
+					ui.setUsername(txtAccount.getText());
+					ui.setPassword(txtPassword.getText());
+					oos = new ObjectOutputStream(socket.getOutputStream());
+					oos.writeObject(ui);
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}	
 			}
 		});
 		btnLogin.setBounds(106, 180, 214, 23);
 		frame.getContentPane().add(btnLogin);
-		
+		//register
 		JButton btnNewButton = new JButton("Register");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				enterUsername = txtAccount.getText();
-				enterPassword = txtPassword.getText();
+				/*ui.setUsername(txtAccount.getText());
+				ui.setPassword(txtPassword.getText());
 				try {
-					dp = new DataProcessing(enterUsername,enterPassword);
+					dp = new DataProcessing(ui);
 					switch(dp.Register()) {
 						case 0:System.out.println("Success");break;
 						case 1:System.out.println("Been registered");break;
@@ -99,10 +102,11 @@ public class GUI {
 					}
 				}catch(Exception e1) {
 					e1.printStackTrace();
-				}
+				}*/
 			}
 		});
 		btnNewButton.setBounds(106, 213, 214, 23);
 		frame.getContentPane().add(btnNewButton);
+		
 	}
 }
