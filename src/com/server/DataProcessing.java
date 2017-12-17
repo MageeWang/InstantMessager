@@ -1,16 +1,19 @@
 package com.server;
 import java.sql.*;
+import java.util.ArrayList;
+
 import com.common.*;
 
 public class DataProcessing {
 
-	private String account;
+	private static String account;
 	private String password;
 	private String sql;
 	private Connection con;
 	private Statement stmt;
 	private ResultSet rs0;
 	private ResultSet rs1;
+	private ArrayList FriendList;
 	
 	public DataProcessing(UserInfo ui) throws Exception {
 		this.account = ui.getUsername();
@@ -65,6 +68,19 @@ public class DataProcessing {
 		else
 			result = 2;
 		return result;//if 0 success;if 1 had been registered;if 2 not entered;
+	}
+	
+	public ArrayList getFriendList() throws SQLException {
+		
+		rs0 = stmt.executeQuery("select * from ClientInformatica");
+		FriendList = new ArrayList();
+		while(rs0.next()) {
+			String self = rs0.getString("Username");
+			if(self.equals(account)) continue;
+			FriendList.add(self);
+		}
+		
+		return FriendList;
 	}
 	
 }

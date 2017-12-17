@@ -1,4 +1,6 @@
 package com.server;
+import java.util.ArrayList;
+
 import com.common.*;
 
 public class DataConfirm {
@@ -12,7 +14,7 @@ public class DataConfirm {
 		this.ui = ui;
 	}
 	/*login*/
-	public void confirmLogin() {
+	public ArrayList confirmLogin() {
 		
 		account = ui.getUsername();
 		password = ui.getPassword();
@@ -20,7 +22,7 @@ public class DataConfirm {
 		try {
 			dp = new DataProcessing(ui);
 			switch(dp.Compare()) {
-				case 0:System.out.println("Login");break;
+				case 0:System.out.println("Login");return dp.getFriendList();
 				case 1:System.out.println("Wrong password");break;
 				case 2:System.out.println("Not exist");break;
 				case 3:System.out.println("Null");break;
@@ -28,6 +30,8 @@ public class DataConfirm {
 		}catch(Exception e1) {
 			e1.printStackTrace();
 		}
+		
+		return null;
 	}
 	/*register*/
 	public void confirmRegister() {

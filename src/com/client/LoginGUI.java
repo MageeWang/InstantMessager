@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.io.*;
 
 import com.common.*;
@@ -44,7 +45,6 @@ public class LoginGUI implements Serializable{
 	private void initialize() throws Exception {
 
 		ui = new UserInfo();
-		socket = new Socket("localhost",3223);
 		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
@@ -76,10 +76,14 @@ public class LoginGUI implements Serializable{
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					if(socket==null)	socket = new Socket("localhost",3223);
 					ui.setUsername(txtAccount.getText());
 					ui.setPassword(txtPassword.getText());
+					ui.setStatus("$Login");
 					oos = new ObjectOutputStream(socket.getOutputStream());
 					oos.writeObject(ui);
+					new ListGUI(socket);
+					frame.setVisible(false);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}	
@@ -91,18 +95,16 @@ public class LoginGUI implements Serializable{
 		JButton btnNewButton = new JButton("Register");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				/*ui.setUsername(txtAccount.getText());
-				ui.setPassword(txtPassword.getText());
 				try {
-					dp = new DataProcessing(ui);
-					switch(dp.Register()) {
-						case 0:System.out.println("Success");break;
-						case 1:System.out.println("Been registered");break;
-						case 2:System.out.println("Null");break;
-					}
-				}catch(Exception e1) {
+					if(socket==null)	socket = new Socket("localhost",3223);
+					ui.setUsername(txtAccount.getText());
+					ui.setPassword(txtPassword.getText());
+					ui.setStatus("$Register");
+					oos = new ObjectOutputStream(socket.getOutputStream());
+					oos.writeObject(ui);		
+				} catch (Exception e1) {
 					e1.printStackTrace();
-				}*/
+				}
 			}
 		});
 		btnNewButton.setBounds(106, 213, 214, 23);
