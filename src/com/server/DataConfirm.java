@@ -5,7 +5,7 @@ import com.common.*;
 
 public class DataConfirm {
 	
-	private DataProcessing dp;
+	private DataProcess dp;
 	private UserInfo ui;
 	private String account;
 	private String password;
@@ -20,7 +20,7 @@ public class DataConfirm {
 		password = ui.getPassword();
 		ui.getPassword();
 		try {
-			dp = new DataProcessing(ui);
+			dp = new DataProcess(ui);
 			switch(dp.Compare()) {
 				case 0:System.out.println("Login");return dp.getFriendList();
 				case 1:System.out.println("Wrong password");break;
@@ -39,7 +39,7 @@ public class DataConfirm {
 		account = ui.getUsername();
 		password = ui.getPassword();
 		try {
-			dp = new DataProcessing(ui);
+			dp = new DataProcess(ui);
 			switch(dp.Register()) {
 				case 0:System.out.println("Success");break;
 				case 1:System.out.println("Been registered");break;

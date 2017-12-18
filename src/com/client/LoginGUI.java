@@ -9,7 +9,7 @@ import java.io.*;
 
 import com.common.*;
 
-import com.server.DataProcessing;
+import com.server.DataProcess;
 
 public class LoginGUI implements Serializable{
 
@@ -19,24 +19,11 @@ public class LoginGUI implements Serializable{
 	private static LoginGUI login;
 	private String enterUsername;
 	private String enterPassword;
-	private DataProcessing dp;
+	private DataProcess dp;
 	private UserInfo ui;
 	private Socket socket;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					login = new LoginGUI();
-					login.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	public LoginGUI() throws Exception {
 		initialize();
@@ -49,6 +36,7 @@ public class LoginGUI implements Serializable{
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("InstantMessager");
 		frame.getContentPane().setLayout(null);
 		
 		txtPassword = new JPasswordField();
@@ -82,7 +70,7 @@ public class LoginGUI implements Serializable{
 					ui.setStatus("$Login");
 					oos = new ObjectOutputStream(socket.getOutputStream());
 					oos.writeObject(ui);
-					new ListGUI(socket);
+					new ListGUI(socket, txtAccount.getText());
 					frame.setVisible(false);
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -109,6 +97,6 @@ public class LoginGUI implements Serializable{
 		});
 		btnNewButton.setBounds(106, 213, 214, 23);
 		frame.getContentPane().add(btnNewButton);
-		
+		frame.setVisible(true);
 	}
 }

@@ -1,12 +1,14 @@
 package com.common;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Message {
+public class Message implements Serializable{
 	
 	private String sender;
 	private String getter;
-	private Date time;
+	private String text;
+	private String time;
 	
 	public String getSender() {
 		return sender;
@@ -20,11 +22,17 @@ public class Message {
 	public void setGetter(String getter) {
 		this.getter = getter;
 	}
-	public Date getTime() {
+	public String getTime() {
 		return time;
 	}
-	public void setTime(Date time) {
+	public void setTime(String time) {
 		this.time = time;
+	}
+	public String getText() {
+		return text;
+	}
+	public void setText(String sendText) {
+		this.text = sendText;
 	}
 	
 }

@@ -15,13 +15,16 @@ public class ListGUI {
 	private Socket s;
 	public ArrayList FriendList;
 	private ObjectInputStream ois;
+	private String userName;
 	
-	public ListGUI(Socket s) throws Exception {
+	public ListGUI(final Socket s,final String userName) throws Exception {
 		this.s = s;
+		this.userName = userName;
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 200, 300);
+		frame.setBounds(100, 100, 250, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle(userName);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -42,8 +45,10 @@ public class ListGUI {
 		list.addListSelectionListener(new ListSelectionListener() {		
 			public void valueChanged(ListSelectionEvent e) {
 				String getter = (String) list.getSelectedValue();
-				if(list.getValueIsAdjusting())
-					new ChatGUI();
+				if(list.getValueIsAdjusting()) {
+					System.out.println(userName);
+					new ChatGUI(s,userName,getter);
+				}	
 			}
 		});
 		scrollPane.setViewportView(list);

@@ -4,20 +4,26 @@ import java.util.ArrayList;
 
 import com.common.*;
 
-public class DataProcessing {
+public class DataProcess {
 
 	private static String account;
 	private String password;
 	private String sql;
-	private Connection con;
-	private Statement stmt;
+	public Connection con;
+	public Statement stmt;
 	private ResultSet rs0;
 	private ResultSet rs1;
 	private ArrayList FriendList;
 	
-	public DataProcessing(UserInfo ui) throws Exception {
+	public DataProcess(UserInfo ui) throws Exception {
 		this.account = ui.getUsername();
 		this.password = ui.getPassword();
+		Class.forName("com.hxtt.sql.access.AccessDriver");
+		con = DriverManager.getConnection("jdbc:Access:///C:\\Workspace\\InstantMessager\\ClientInformatica.accdb");
+		stmt = con.createStatement();
+	}
+	
+	public DataProcess() throws Exception {
 		Class.forName("com.hxtt.sql.access.AccessDriver");
 		con = DriverManager.getConnection("jdbc:Access:///C:\\Workspace\\InstantMessager\\ClientInformatica.accdb");
 		stmt = con.createStatement();

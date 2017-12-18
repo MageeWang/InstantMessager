@@ -2,24 +2,28 @@ package com.server;
 import com.server.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import com.common.UserInfo;
+import com.common.*;
 
 public class Server implements Serializable{
 
 	private ServerSocket ss;
 	private Socket s;
+	private static HashMap<String,Socket> online = new HashMap<String,Socket>();
 		
 	static class Task implements Runnable {
 		private Socket s;
+		private Socket aimSocket;
 		private ObjectInputStream ois;
 		private ObjectOutputStream oos;
 		private UserInfo ui;
 		private DataConfirm dc;
+		private Message msg;
 		
 		public Task(Socket s) {
 			this.s = s;
@@ -36,14 +40,31 @@ public class Server implements Serializable{
 						if(dc.confirmLogin() != null) {
 							oos = new ObjectOutputStream(s.getOutputStream());
 							oos.writeObject(dc.confirmLogin());
+							online.put(ui.Username,s);
+							break;
 						}
 					}
 					else if(ui.Status.equals("$Register")) {
 						dc.confirmRegister();
 					}
-				}	
+				}
+				//Transmit
+				while(true) {
+					ois = new ObjectInputStream(s.getInputStream());
+					msg = (Message)ois.readObject();
+					System.out.println(msg.getSender()+" say "+msg.getText()+" to "+msg.getGetter());
+					aimSocket = online.get(msg.getGetter());
+					if(aimSocket!=null) {
+						oos = new ObjectOutputStream(aimSocket.getOutputStream());
+						oos.writeObject(msg);
+					}
+					else {
+						OutlineMsgProcess omp = new OutlineMsgProcess(msg);
+						omp.addMsg();
+					}//Outline
+					
+				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -73,7 +94,7 @@ public class Server implements Serializable{
 						new Thread(new Task(s)).start();
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				
 			}
