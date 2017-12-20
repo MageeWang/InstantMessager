@@ -24,6 +24,7 @@ public class Server implements Serializable{
 		private UserInfo ui;
 		private DataConfirm dc;
 		private Message msg;
+		private OutlineMsgProcess omp;
 		
 		public Task(Socket s) {
 			this.s = s;
@@ -48,6 +49,8 @@ public class Server implements Serializable{
 						dc.confirmRegister();
 					}
 				}
+				omp = new OutlineMsgProcess(ui,s);
+				omp.sendMsg();
 				//Transmit
 				while(true) {
 					ois = new ObjectInputStream(s.getInputStream());
@@ -59,13 +62,14 @@ public class Server implements Serializable{
 						oos.writeObject(msg);
 					}
 					else {
-						OutlineMsgProcess omp = new OutlineMsgProcess(msg);
+						omp = new OutlineMsgProcess(msg);
 						omp.addMsg();
 					}//Outline
 					
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				if(e.equals("Connection reset"))
+					System.out.println(ui.getUsername()+" Outlined");
 			}
 		}
 	}
@@ -94,7 +98,7 @@ public class Server implements Serializable{
 						new Thread(new Task(s)).start();
 					}
 				} catch (Exception e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 				
 			}

@@ -1,7 +1,6 @@
 package com.server;
 import java.sql.*;
 import java.util.ArrayList;
-
 import com.common.*;
 
 public class DataProcess {
@@ -81,9 +80,9 @@ public class DataProcess {
 		rs0 = stmt.executeQuery("select * from ClientInformatica");
 		FriendList = new ArrayList();
 		while(rs0.next()) {
-			String self = rs0.getString("Username");
-			if(self.equals(account)) continue;
-			FriendList.add(self);
+			String user = rs0.getString("Username");
+			if(user.equals(account)) continue;
+			FriendList.add(user);
 		}
 		
 		return FriendList;

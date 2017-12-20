@@ -19,7 +19,7 @@ public class ChatGUI {
 	private Socket s;
 	private SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-	public ChatGUI(final Socket s,String sender,String getter) {
+	public ChatGUI(final Socket s,final String sender,final String getter,final ArrayList OutlineMsg) {
 		
 		this.s = s;
 		this.sender = sender;
@@ -58,10 +58,20 @@ public class ChatGUI {
 			
 			public void run() {
 				try {
+					if(OutlineMsg!=null) {
+						for(int i=0;i<OutlineMsg.size();i++) {
+						getMsg = (Message) OutlineMsg.get(i);
+						System.out.println(getMsg.getSender()+" to "+getMsg.getGetter()+":"+getMsg.getText());
+						System.out.println(getter);
+						if(getMsg.getSender().equals(getter))
+							chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
+						}
+					}
+					
 					while(true) {
 						ois = new ObjectInputStream(s.getInputStream());
 						getMsg = (Message) ois.readObject();
-						chatArea.append(getMsg.getSender()+" says:"+getMsg.getText()+"\n");
+						chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
 					}	
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -78,7 +88,7 @@ public class ChatGUI {
 					sendMsg.setTime(df.format(new Date().getTime()));
 					sendMsg.setText(sendField.getText());
 					sendField.setText("");
-					chatArea.append("I say"+"("+sendMsg.getTime()+")"+":"+sendMsg.getText()+"\n");
+					chatArea.append("I say"+"("+sendMsg.getTime()+")"+":\n"+sendMsg.getText()+"\n");
 					ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 					oos.writeObject(sendMsg);
 				} catch (Exception e) {
@@ -90,4 +100,5 @@ public class ChatGUI {
 		frame.getContentPane().add(btnSend);
 		frame.setVisible(true);
 	}
+
 }

@@ -10,6 +10,10 @@ public class Message implements Serializable{
 	private String text;
 	private String time;
 	
+	public Message() {
+		
+	}
+	
 	public String getSender() {
 		return sender;
 	}
