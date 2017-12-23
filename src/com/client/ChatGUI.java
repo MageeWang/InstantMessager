@@ -13,6 +13,7 @@ public class ChatGUI {
 
 	private JFrame frame;
 	private JTextField sendField;
+	JTextArea chatArea;
 	private Message sendMsg = new Message();
 	private String sender;
 	private String getter;
@@ -29,15 +30,20 @@ public class ChatGUI {
 		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setTitle(getter+"("+sender+")");
 		frame.getContentPane().setLayout(null);
+		frame.addWindowListener(new WindowAdapter() {	
+			public void windowClosing(WindowEvent e) {
+				super.windowClosing(e);
+				
+			}
+		});
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 10, 414, 213);
 		frame.getContentPane().add(scrollPane);
 		
-		final JTextArea chatArea = new JTextArea();
+		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		scrollPane.setViewportView(chatArea);
 		
@@ -46,40 +52,6 @@ public class ChatGUI {
 		frame.getContentPane().add(sendField);
 		sendField.setColumns(10);
 		
-		class GetMsg implements Runnable {
-			
-			private Message getMsg = new Message();
-			private Socket s;
-			private ObjectInputStream ois;
-			
-			public GetMsg(Socket s) {
-				this.s = s;
-			}
-			
-			public void run() {
-				try {
-					if(OutlineMsg!=null) {
-						for(int i=0;i<OutlineMsg.size();i++) {
-						getMsg = (Message) OutlineMsg.get(i);
-						System.out.println(getMsg.getSender()+" to "+getMsg.getGetter()+":"+getMsg.getText());
-						System.out.println(getter);
-						if(getMsg.getSender().equals(getter))
-							chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
-						}
-					}
-					
-					while(true) {
-						ois = new ObjectInputStream(s.getInputStream());
-						getMsg = (Message) ois.readObject();
-						chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
-					}	
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			
-		}
-		new Thread(new GetMsg(s)).start();
 		JButton btnSend = new JButton("Send");
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {

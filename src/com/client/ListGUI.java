@@ -15,7 +15,8 @@ public class ListGUI {
 	private JFrame frame;
 	private Socket s;
 	public ArrayList FriendList;
-	public ArrayList OutlineMsg;
+	public ArrayList UnreadMsg;
+	public HashMap<String,ChatGUI> chatList = new HashMap<String,ChatGUI>();
 	private ObjectInputStream ois;
 	private String userName;
 	private Message msg;
@@ -36,33 +37,57 @@ public class ListGUI {
 		ois = new ObjectInputStream(s.getInputStream());
 		this.FriendList = (ArrayList) ois.readObject();
 		
-		class FriendListSet implements Runnable {
-
-			public void run(){
-				try {
-					ois = new ObjectInputStream(s.getInputStream());
-					OutlineMsg = (ArrayList) ois.readObject();
+		try {
+			ois = new ObjectInputStream(s.getInputStream());
+			UnreadMsg = (ArrayList) ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(UnreadMsg!=null) {
+			for(int i=0;i<FriendList.size();i++) {
+				int count=0;
+				String Sender = FriendList.get(i).toString();
+				for(int j=0;j<UnreadMsg.size();j++) {
+					msg = (Message) UnreadMsg.get(j);
+					if(Sender.equals(msg.getSender())) {
+						count++;
+					}
+				}
+				if(count!=0)
+					FriendList.set(i,Sender+"("+count+")");
+			}
+		}
+				
+		class GetMsg implements Runnable {
+			
+			private Message getMsg = new Message();
+			private Socket s;
+			private ObjectInputStream ois;
+					
+			public GetMsg(Socket s) {
+				this.s = s;
+			}
+					
+			public void run() {
+				try {		
+					while(true) {
+						ois = new ObjectInputStream(s.getInputStream());
+						getMsg = (Message) ois.readObject();
+						//System.out.println(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
+						if(chatList.containsKey(getMsg.getSender())) {
+							chatList.get(getMsg.getSender()).chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
+						}
+						else {
+							
+						}
+					}	
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if(OutlineMsg!=null) {
-					for(int i=0;i<FriendList.size();i++) {
-						int count=0;
-						String Sender = FriendList.get(i).toString();
-						for(int j=0;j<OutlineMsg.size();j++) {
-							msg = (Message) OutlineMsg.get(j);
-							if(Sender.equals(msg.getSender())) {
-								count++;
-							}
-						}
-						if(count!=0)
-							FriendList.set(i,Sender+"("+count+")");
-					}
-				}		
-			}	
+			}
 		}
 		
-		new Thread(new FriendListSet()).start();
+		new Thread(new GetMsg(s)).start();;
 			
 		final JList list = new JList();
 		list.setModel(new AbstractListModel() {
@@ -87,7 +112,10 @@ public class ListGUI {
 							break;
 						}
 					}
-					new ChatGUI(s,userName,getter1,OutlineMsg);
+					if(!chatList.containsKey(getter1))
+						chatList.put(getter1,new ChatGUI(s,userName,getter1,UnreadMsg));
+					else
+						return;
 					if(FriendList.indexOf(getter)!=-1)
 						FriendList.set(FriendList.indexOf(getter),getter1);
 					list.setListData(FriendList.toArray());

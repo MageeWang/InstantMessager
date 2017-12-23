@@ -60,6 +60,7 @@ public class Server implements Serializable{
 					if(aimSocket!=null) {
 						oos = new ObjectOutputStream(aimSocket.getOutputStream());
 						oos.writeObject(msg);
+						oos.flush();
 					}
 					else {
 						omp = new OutlineMsgProcess(msg);
