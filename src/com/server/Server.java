@@ -2,7 +2,9 @@ package com.server;
 import com.server.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +16,8 @@ public class Server implements Serializable{
 
 	private ServerSocket ss;
 	private Socket s;
-	private static HashMap<String,Socket> online = new HashMap<String,Socket>();
+	public static HashMap<String,Socket> online = new HashMap<String,Socket>();
+	public static ArrayList onlineList;
 		
 	static class Task implements Runnable {
 		private Socket s;
@@ -32,7 +35,6 @@ public class Server implements Serializable{
 		
 		public void run() {
 			try {
-				System.out.println("Socket has built");
 				while(true) {
 					ois = new ObjectInputStream(s.getInputStream());
 					ui = (UserInfo)ois.readObject();
@@ -41,6 +43,8 @@ public class Server implements Serializable{
 						if(dc.confirmLogin() != null) {
 							oos = new ObjectOutputStream(s.getOutputStream());
 							oos.writeObject(dc.confirmLogin());
+							onlineList.addAll(online.keySet());
+							oos.writeObject(onlineList);
 							online.put(ui.Username,s);
 							break;
 						}
@@ -50,14 +54,15 @@ public class Server implements Serializable{
 					}
 				}
 				omp = new OutlineMsgProcess(ui,s);
+				//Send outline messages.
 				omp.sendMsg();
 				//Transmit
 				while(true) {
 					ois = new ObjectInputStream(s.getInputStream());
 					msg = (Message)ois.readObject();
 					System.out.println(msg.getSender()+" say "+msg.getText()+" to "+msg.getGetter());
-					aimSocket = online.get(msg.getGetter());
-					if(aimSocket!=null) {
+					if(online.containsKey(msg.getGetter())) {
+						aimSocket = online.get(msg.getGetter());
 						oos = new ObjectOutputStream(aimSocket.getOutputStream());
 						oos.writeObject(msg);
 						oos.flush();
@@ -69,8 +74,18 @@ public class Server implements Serializable{
 					
 				}
 			} catch (Exception e) {
-				if(e.equals("Connection reset"))
-					System.out.println(ui.getUsername()+" Outlined");
+				System.out.println(ui.getUsername()+" Outlined");
+				online.remove(ui.getUsername());
+				Message outlineMsg = new Message(Message.OUTLINE_MSG);
+				for(Entry<String, Socket> entry:online.entrySet()) {
+					try {
+						outlineMsg.setOutUser(ui.getUsername());
+						oos = new ObjectOutputStream(entry.getValue().getOutputStream());
+						oos.writeObject(outlineMsg);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}	
 			}
 		}
 	}

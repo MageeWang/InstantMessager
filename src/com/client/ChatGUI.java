@@ -13,14 +13,15 @@ public class ChatGUI {
 
 	private JFrame frame;
 	private JTextField sendField;
-	JTextArea chatArea;
-	private Message sendMsg = new Message();
+	public JTextArea chatArea;
+	private Message sendMsg=new Message(Message.CHAT_MSG);
+	private Message msg;
 	private String sender;
 	private String getter;
 	private Socket s;
 	private SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-	public ChatGUI(final Socket s,final String sender,final String getter,final ArrayList OutlineMsg) {
+	public ChatGUI(final Socket s,final String sender,final String getter,final ArrayList UnreadMsg) {
 		
 		this.s = s;
 		this.sender = sender;
@@ -34,8 +35,8 @@ public class ChatGUI {
 		frame.getContentPane().setLayout(null);
 		frame.addWindowListener(new WindowAdapter() {	
 			public void windowClosing(WindowEvent e) {
+				ListGUI.chatList.remove(getter);
 				super.windowClosing(e);
-				
 			}
 		});
 		
@@ -46,6 +47,12 @@ public class ChatGUI {
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		scrollPane.setViewportView(chatArea);
+		for(int i=0;i<UnreadMsg.size();i++) {
+			msg = (Message) UnreadMsg.get(i);
+			if(msg.getSender().equals(getter)) {
+				chatArea.append(msg.getSender()+" says"+"("+msg.getTime()+")"+":\n"+msg.getText()+"\n");
+			}
+		}
 		
 		sendField = new JTextField();
 		sendField.setBounds(10, 230, 337, 21);
@@ -63,6 +70,7 @@ public class ChatGUI {
 					chatArea.append("I say"+"("+sendMsg.getTime()+")"+":\n"+sendMsg.getText()+"\n");
 					ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 					oos.writeObject(sendMsg);
+					oos.flush();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

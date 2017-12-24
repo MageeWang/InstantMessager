@@ -13,16 +13,18 @@ import java.util.*;
 public class ListGUI {
 
 	private JFrame frame;
+	public final JList list;
 	private Socket s;
 	public ArrayList FriendList;
+	public ArrayList OnlineList;
 	public ArrayList UnreadMsg;
-	public HashMap<String,ChatGUI> chatList = new HashMap<String,ChatGUI>();
+	public static HashMap<String,ChatGUI> chatList = new HashMap<String,ChatGUI>();
 	private ObjectInputStream ois;
 	private String userName;
 	private Message msg;
-	private ChatGUI cg;
+	public boolean listSetable = false;
 	
-	public ListGUI(final Socket s,final String userName) throws Exception {
+	public ListGUI(final Socket s,final String userName) throws IOException, ClassNotFoundException {
 		this.s = s;
 		this.userName = userName;
 
@@ -36,31 +38,28 @@ public class ListGUI {
 		
 		ois = new ObjectInputStream(s.getInputStream());
 		this.FriendList = (ArrayList) ois.readObject();
+		this.OnlineList = (ArrayList) ois.readObject();
 		
-		try {
-			ois = new ObjectInputStream(s.getInputStream());
-			UnreadMsg = (ArrayList) ois.readObject();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if(UnreadMsg!=null) {
-			for(int i=0;i<FriendList.size();i++) {
-				int count=0;
-				String Sender = FriendList.get(i).toString();
-				for(int j=0;j<UnreadMsg.size();j++) {
-					msg = (Message) UnreadMsg.get(j);
-					if(Sender.equals(msg.getSender())) {
-						count++;
-					}
+		ois = new ObjectInputStream(s.getInputStream());
+		UnreadMsg = (ArrayList) ois.readObject();
+		
+		for(int i=0;i<FriendList.size();i++) {
+			int count=0;
+			String Sender = FriendList.get(i).toString();
+			for(int j=0;j<UnreadMsg.size();j++) {
+				msg = (Message) UnreadMsg.get(j);
+				if(Sender.equals(msg.getSender())) {
+					count++;
 				}
-				if(count!=0)
-					FriendList.set(i,Sender+"("+count+")");
 			}
+			if(count!=0)
+				FriendList.set(i,Sender+"("+count+")");
 		}
 				
 		class GetMsg implements Runnable {
 			
-			private Message getMsg = new Message();
+			private Message getMsg;
+			private Message msg = new Message();
 			private Socket s;
 			private ObjectInputStream ois;
 					
@@ -73,13 +72,57 @@ public class ListGUI {
 					while(true) {
 						ois = new ObjectInputStream(s.getInputStream());
 						getMsg = (Message) ois.readObject();
-						//System.out.println(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
-						if(chatList.containsKey(getMsg.getSender())) {
-							chatList.get(getMsg.getSender()).chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
+						if(getMsg.type==Message.CHAT_MSG) {
+							//If get messages and chatGUI has been bulit,append the message to the chat GUI
+							if(chatList.containsKey(getMsg.getSender())) {
+								chatList.get(getMsg.getSender()).chatArea.append(getMsg.getSender()+" says"+"("+getMsg.getTime()+")"+":\n"+getMsg.getText()+"\n");
+							}
+							//If it is not exist,add the message into UnreadList and change value of unread message in the friendlist.
+							else {
+								UnreadMsg.add(getMsg);
+								for(int i=0;i<FriendList.size();i++) {
+									String getter = (String) FriendList.get(i);
+									String getter1="";
+									for(int k=0;k<getter.length();k++) {
+										if(getter.charAt(k)!='(') {
+											getter1+=getter.charAt(k);
+										}
+										else {
+											break;
+										}
+									}
+									FriendList.set(i, getter1);
+								}	
+								for(int k=0;k<UnreadMsg.size();k++) {
+									msg = (Message) UnreadMsg.get(k);
+									if(chatList.containsKey(msg.getSender())) {
+										chatList.get(msg.getSender()).chatArea.append(msg.getSender()+" says"+"("+msg.getTime()+")"+":\n"+msg.getText()+"\n");
+									}
+									else {
+										for(int i=0;i<FriendList.size();i++) {
+											int count=0;
+											String Sender = FriendList.get(i).toString();
+											for(int j=0;j<UnreadMsg.size();j++) {
+												msg = (Message) UnreadMsg.get(j);
+												if(Sender.equals(msg.getSender())) {
+													count++;
+												}
+											}
+											if(count!=0)
+												FriendList.set(i,Sender+"("+count+")");
+										}
+									}
+								}
+								list.setListData(FriendList.toArray());
+							}
 						}
-						else {
-							
+						else if(getMsg.type==Message.ONLINE_MSG) {
+							System.out.println(getMsg.getOnUser()+" online");
 						}
+						else if(getMsg.type==Message.OUTLINE_MSG) {
+							System.out.println(getMsg.getOutUser()+" outline");
+						}
+						
 					}	
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -87,9 +130,9 @@ public class ListGUI {
 			}
 		}
 		
-		new Thread(new GetMsg(s)).start();;
+		new Thread(new GetMsg(s)).start();
 			
-		final JList list = new JList();
+		list = new JList();
 		list.setModel(new AbstractListModel() {
 			String[] values = (String[]) FriendList.toArray(new String[50]);
 			public int getSize() {
@@ -112,8 +155,14 @@ public class ListGUI {
 							break;
 						}
 					}
-					if(!chatList.containsKey(getter1))
+					if(!chatList.containsKey(getter1)) {
 						chatList.put(getter1,new ChatGUI(s,userName,getter1,UnreadMsg));
+						for(int i=0;i<UnreadMsg.size();i++) {
+							if(((Message) UnreadMsg.get(i)).getSender().equals(getter1)) {
+								UnreadMsg.remove(i);
+							}
+						}
+					}
 					else
 						return;
 					if(FriendList.indexOf(getter)!=-1)
@@ -123,8 +172,7 @@ public class ListGUI {
 			}
 		});
 		
-		scrollPane.setViewportView(list);
-		
+		scrollPane.setViewportView(list);	
 		frame.setVisible(true);
 	}
 
